@@ -1,0 +1,29 @@
+{
+  "name": "@cmdr5/space-traders",
+  "version": "0.1.0",
+  "description": "A simple TypeScript/JavaScript SDK to automate SpaceTraders.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "/dist"
+  ],
+  "scripts": {},
+  "keywords": [
+    "spacetraders"
+  ],
+  "author": {
+    "email": "hello@cmdr5.dev",
+    "name": "cmdr5",
+    "url": "https://cmdr5.dev"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@commitlint/cli": "^17.6.5",
+    "@commitlint/config-conventional": "^17.6.5",
+    "editorconfig-checker": "^5.0.1",
+    "lefthook": "^1.4.1",
+    "prettier": "^2.8.8",
+    "prettier-plugin-organize-imports": "^3.2.2",
+    "typescript": "^5.1.3"
+  }
+}

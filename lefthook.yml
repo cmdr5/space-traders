@@ -1,0 +1,12 @@
+commit-msg:
+  commands:
+    commitlint:
+      run: pnpm commitlint --edit
+
+pre-commit:
+  commands:
+    prettier:
+      glob: "*.{ts,md,yml,json}"
+      run: pnpm prettier --write {staged_files}
+    editorconfig:
+      run: pnpm ec {staged_files}
