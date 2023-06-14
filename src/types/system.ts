@@ -1,16 +1,17 @@
 import type { WaypointType } from "./waypoint";
 
-export type SystemType =
-  | "NEUTRON_STAR"
-  | "RED_STAR"
-  | "ORANGE_STAR"
-  | "BLUE_STAR"
-  | "YOUNG_STAR"
-  | "WHITE_DWARF"
-  | "BLACK_HOLE"
-  | "HYPERGIANT"
-  | "NEBULA"
-  | "UNSTABLE";
+export enum SystemType {
+  NeutronStar = "NEUTRON_STAR",
+  RedStar = "RED_STAR",
+  OrangeStar = "ORANGE_STAR",
+  BlueStar = "BLUE_STAR",
+  YoungStar = "YOUNG_STAR",
+  WhiteDwarf = "WHITE_DWARF",
+  BlackHole = "BLACK_HOLE",
+  Hypergiant = "HYPERGIANT",
+  Nebula = "NEBULA",
+  Unstable = "UNSTABLE"
+}
 
 export type SystemFaction = {
   symbol: string;
@@ -42,3 +43,5 @@ export type ConnectedSystem = {
   y: number;
   distance: number;
 };
+
+export type ScannedSystem = Omit<ConnectedSystem, "factionSymbol">;

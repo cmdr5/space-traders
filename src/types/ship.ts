@@ -1,156 +1,40 @@
+import type { TradeSymbol } from "./trade";
 import type { WaypointType } from "./waypoint";
 
-export type ShipFuel = {
-  current: number;
-  capacity: number;
-  consumed?: {
-    amount: number;
-    timestamp: string;
-  };
-};
+export enum ShipType {
+  Probe = "SHIP_PROBE",
+  MiningDrone = "SHIP_MINING_DRONE",
+  Interceptor = "SHIP_INTERCEPTOR",
+  LightHauler = "SHIP_LIGHT_HAULER",
+  CommandFrigate = "SHIP_COMMAND_FRIGATE",
+  Explorer = "SHIP_EXPLORER",
+  HeavyFreighter = "SHIP_HEAVY_FREIGHTER",
+  LightShuttle = "SHIP_LIGHT_SHUTTLE",
+  OreHound = "SHIP_ORE_HOUND",
+  RefiningFreighter = "SHIP_REFINING_FREIGHTER"
+}
 
-export type ShipCargoItem = {
-  symbol: string;
+export enum ShipRole {
+  Fabricator = "FABRICATOR",
+  Harvester = "HARVESTER",
+  Hauler = "HAULER",
+  Interceptor = "INTERCEPTOR",
+  Excavator = "EXCAVATOR",
+  Transport = "TRANSPORT",
+  Repair = "REPAIR",
+  Surveyor = "SURVEYOR",
+  Command = "COMMAND",
+  Carrier = "CARRIER",
+  Patrol = "PATROL",
+  Satellite = "SATELLITE",
+  Explorer = "EXPLORER",
+  Refinery = "REFINERY"
+}
+
+export type ShipRegistration = {
   name: string;
-  description: string;
-  units: number;
-};
-
-export type ShipCargo = {
-  capacity: number;
-  units: number;
-  inventory: ShipCargoItem[];
-};
-
-export type ShipMountSymbol =
-  | "MOUNT_GAS_SIPHON_I"
-  | "MOUNT_GAS_SIPHON_II"
-  | "MOUNT_GAS_SIPHON_III"
-  | "MOUNT_SURVEYOR_I"
-  | "MOUNT_SURVEYOR_II"
-  | "MOUNT_SURVEYOR_III"
-  | "MOUNT_SENSOR_ARRAY_I"
-  | "MOUNT_SENSOR_ARRAY_II"
-  | "MOUNT_SENSOR_ARRAY_III"
-  | "MOUNT_MINING_LASER_I"
-  | "MOUNT_MINING_LASER_II"
-  | "MOUNT_MINING_LASER_III"
-  | "MOUNT_LASER_CANNON_I"
-  | "MOUNT_MISSILE_LAUNCHER_I"
-  | "MOUNT_TURRET_I";
-
-export type ShipRequirements = {
-  power?: number;
-  crew?: number;
-  slots?: number;
-};
-
-export type ShipMount = {
-  symbol: ShipMountSymbol;
-  name: string;
-  description?: string;
-  strength?: number;
-  // TODO: Use a string union for this.
-  deposits?: string[];
-  requirements: ShipRequirements;
-};
-
-export type ShipModuleSymbol =
-  | "MODULE_MINERAL_PROCESSOR_I"
-  | "MODULE_CARGO_HOLD_I"
-  | "MODULE_CREW_QUARTERS_I"
-  | "MODULE_ENVOY_QUARTERS_I"
-  | "MODULE_PASSENGER_CABIN_I"
-  | "MODULE_MICRO_REFINERY_I"
-  | "MODULE_ORE_REFINERY_I"
-  | "MODULE_FUEL_REFINERY_I"
-  | "MODULE_SCIENCE_LAB_I"
-  | "MODULE_JUMP_DRIVE_I"
-  | "MODULE_JUMP_DRIVE_II"
-  | "MODULE_JUMP_DRIVE_III"
-  | "MODULE_WARP_DRIVE_I"
-  | "MODULE_WARP_DRIVE_II"
-  | "MODULE_WARP_DRIVE_III"
-  | "MODULE_SHIELD_GENERATOR_I"
-  | "MODULE_SHIELD_GENERATOR_II";
-
-export type ShipModule = {
-  symbol: ShipMountSymbol;
-  capacity?: number;
-  range?: number;
-  name: string;
-  description: string;
-  requirements: ShipRequirements;
-};
-
-export type ShipEngineSymbol =
-  | "ENGINE_IMPULSE_DRIVE_I"
-  | "ENGINE_ION_DRIVE_I"
-  | "ENGINE_ION_DRIVE_II"
-  | "ENGINE_HYPER_DRIVE_I";
-
-export type ShipEngine = {
-  symbol: ShipEngineSymbol;
-  name: string;
-  description: string;
-  condition?: number;
-  speed: number;
-  requirements: ShipRequirements;
-};
-
-export type ShipReactorSymbol =
-  | "REACTOR_SOLAR_I"
-  | "REACTOR_FUSION_I"
-  | "REACTOR_FISSION_I"
-  | "REACTOR_CHEMICAL_I"
-  | "REACTOR_ANTIMATTER_I";
-
-export type ShipReactor = {
-  symbol: ShipReactorSymbol;
-  name: string;
-  description: string;
-  condition?: number;
-  powerOutput: number;
-  requirements: ShipRequirements;
-};
-
-export type ShipFrameSymbol =
-  | "FRAME_PROBE"
-  | "FRAME_DRONE"
-  | "FRAME_INTERCEPTOR"
-  | "FRAME_RACER"
-  | "FRAME_FIGHTER"
-  | "FRAME_FRIGATE"
-  | "FRAME_SHUTTLE"
-  | "FRAME_EXPLORER"
-  | "FRAME_MINER"
-  | "FRAME_LIGHT_FREIGHTER"
-  | "FRAME_HEAVY_FREIGHTER"
-  | "FRAME_TRANSPORT"
-  | "FRAME_DESTROYER"
-  | "FRAME_CRUISER"
-  | "FRAME_CARRIER";
-
-export type ShipFrame = {
-  symbol: ShipFrameSymbol;
-  name: string;
-  description: string;
-  condition?: number;
-  moduleSlots: number;
-  mountingPoints: number;
-  fuelCapacity: number;
-  requirements: ShipRequirements;
-};
-
-export type ShipCrewRotation = "STRICT" | "RELAXED";
-
-export type ShipCrew = {
-  current: number;
-  required: number;
-  capacity: number;
-  rotation: ShipCrewRotation;
-  morale: number;
-  wages: number;
+  factionSymbol: string;
+  role: ShipRole;
 };
 
 export type ShipNavRouteWaypoint = {
@@ -168,9 +52,18 @@ export type ShipNavRoute = {
   arrival: string;
 };
 
-export type ShipNavStatus = "IN_TRANSIT" | "IN_ORBIT" | "DOCKED";
+export enum ShipNavStatus {
+  InTransit = "IN_TRANSIT",
+  InOrbit = "IN_ORBIT",
+  Docked = "DOCKED"
+}
 
-export type ShipNavFlightMode = "DRIFT" | "STEALTH" | "CRUISE" | "BURN";
+export enum ShipNavFlightMode {
+  Drift = "DRIFT",
+  Stealth = "STEALTH",
+  Cruise = "CRUISE",
+  Burn = "BURN"
+}
 
 export type ShipNav = {
   systemSymbol: string;
@@ -180,26 +73,161 @@ export type ShipNav = {
   flightMode: ShipNavFlightMode;
 };
 
-export type ShipRole =
-  | "FABRICATOR"
-  | "HARVESTER"
-  | "HAULER"
-  | "INTERCEPTOR"
-  | "EXCAVATOR"
-  | "TRANSPORT"
-  | "REPAIR"
-  | "SURVEYOR"
-  | "COMMAND"
-  | "CARRIER"
-  | "PATROL"
-  | "SATELLITE"
-  | "EXPLORER"
-  | "REFINERY";
+export type ShipCrew = {
+  current: number;
+  required: number;
+  capacity: number;
+  rotation: "STRICT" | "RELAXED";
+  morale: number;
+  wages: number;
+};
 
-export type ShipRegistration = {
+export type ShipRequirements = {
+  power?: number;
+  crew?: number;
+  slots?: number;
+};
+
+export type ShipCondition = number;
+
+export type ShipFrame = {
+  symbol:
+    | "FRAME_PROBE"
+    | "FRAME_DRONE"
+    | "FRAME_INTERCEPTOR"
+    | "FRAME_RACER"
+    | "FRAME_FIGHTER"
+    | "FRAME_FRIGATE"
+    | "FRAME_SHUTTLE"
+    | "FRAME_EXPLORER"
+    | "FRAME_MINER"
+    | "FRAME_LIGHT_FREIGHTER"
+    | "FRAME_HEAVY_FREIGHTER"
+    | "FRAME_TRANSPORT"
+    | "FRAME_DESTROYER"
+    | "FRAME_CRUISER"
+    | "FRAME_CARRIER";
   name: string;
-  factionSymbol: string;
-  role: ShipRole;
+  description: string;
+  condition?: ShipCondition;
+  moduleSlots: number;
+  mountingPoints: number;
+  fuelCapacity: number;
+  requirements: ShipRequirements;
+};
+
+export type ShipReactor = {
+  symbol:
+    | TradeSymbol.ReactorSolarI
+    | TradeSymbol.ReactorFusionI
+    | TradeSymbol.ReactorFissionI
+    | TradeSymbol.ReactorChemicalI
+    | TradeSymbol.ReactorAntimatterI;
+  name: string;
+  description: string;
+  condition?: ShipCondition;
+  powerOutput: number;
+  requirements: ShipRequirements;
+};
+
+export type ShipEngine = {
+  symbol:
+    | TradeSymbol.EngineImpulseDriveI
+    | TradeSymbol.EngineIonDriveI
+    | TradeSymbol.EngineIonDriveII
+    | TradeSymbol.EngineHyperDriveI;
+  name: string;
+  description: string;
+  condition?: ShipCondition;
+  speed: number;
+  requirements: ShipRequirements;
+};
+
+export type ShipModule = {
+  symbol:
+    | TradeSymbol.ModuleMineralProcessorI
+    | TradeSymbol.ModuleCargoHoldI
+    | TradeSymbol.ModuleCrewQuartersI
+    | TradeSymbol.ModuleEnvoyQuartersI
+    | TradeSymbol.ModulePassengerCabinI
+    | TradeSymbol.ModuleMicroRefineryI
+    | TradeSymbol.ModuleOreRefineryI
+    | TradeSymbol.ModuleFuelRefineryI
+    | TradeSymbol.ModuleScienceLabI
+    | TradeSymbol.ModuleJumpDriveI
+    | TradeSymbol.ModuleJumpDriveII
+    | TradeSymbol.ModuleJumpDriveIII
+    | TradeSymbol.ModuleWarpDriveI
+    | TradeSymbol.ModuleWarpDriveII
+    | TradeSymbol.ModuleWarpDriveIII
+    | TradeSymbol.ModuleShieldGeneratorI
+    | TradeSymbol.ModuleShieldGeneratorII;
+  capacity?: number;
+  range?: number;
+  name: string;
+  description: string;
+  requirements: ShipRequirements;
+};
+
+export type ShipMount = {
+  symbol:
+    | TradeSymbol.MountGasSiphonI
+    | TradeSymbol.MountGasSiphonII
+    | TradeSymbol.MountGasSiphonIII
+    | TradeSymbol.MountSurveyorI
+    | TradeSymbol.MountSurveyorII
+    | TradeSymbol.MountSurveyorIII
+    | TradeSymbol.MountSensorArrayI
+    | TradeSymbol.MountSensorArrayII
+    | TradeSymbol.MountSensorArrayIII
+    | TradeSymbol.MountMiningLaserI
+    | TradeSymbol.MountMiningLaserII
+    | TradeSymbol.MountMiningLaserIII
+    | TradeSymbol.MountLaserCannonI
+    | TradeSymbol.MountMissileLauncherI
+    | TradeSymbol.MountTurretI;
+  name: string;
+  description?: string;
+  strength?: number;
+  deposits?: (
+    | TradeSymbol.QuartzSand
+    | TradeSymbol.SiliconCrystals
+    | TradeSymbol.PreciousStones
+    | TradeSymbol.IceWater
+    | TradeSymbol.AmmoniaIce
+    | TradeSymbol.IronOre
+    | TradeSymbol.CopperOre
+    | TradeSymbol.SilverOre
+    | TradeSymbol.AluminumOre
+    | TradeSymbol.GoldOre
+    | TradeSymbol.PlatinumOre
+    | TradeSymbol.Diamonds
+    | TradeSymbol.UraniteOre
+    | TradeSymbol.MeritiumOre
+  )[];
+  requirements: ShipRequirements;
+};
+
+export type ShipCargoItem = {
+  symbol: string;
+  name: string;
+  description: string;
+  units: number;
+};
+
+export type ShipCargo = {
+  capacity: number;
+  units: number;
+  inventory: ShipCargoItem[];
+};
+
+export type ShipFuel = {
+  current: number;
+  capacity: number;
+  consumed?: {
+    amount: number;
+    timestamp: string;
+  };
 };
 
 export type Ship = {
@@ -223,5 +251,5 @@ export type ScannedShip = {
   frame?: { symbol: string };
   reactor?: { symbol: string };
   engine: { symbol: string };
-  mounts: { symbol: string }[];
+  mounts?: { symbol: string }[];
 };

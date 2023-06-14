@@ -23,7 +23,6 @@ export type Contract = {
   terms: ContractTerms;
   accepted: boolean;
   fulfilled: boolean;
-  // NOTE: Deprecated in favor of `deadlineToAccept`.
   expiration: string;
   deadlineToAccept?: string;
 };

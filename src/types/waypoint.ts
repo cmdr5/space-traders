@@ -1,24 +1,17 @@
 import type { Chart } from "./chart";
 import type { FactionSymbol } from "./faction";
 
-export type WaypointType =
-  | "PLANET"
-  | "GAS_GIANT"
-  | "MOON"
-  | "ORBITAL_STATION"
-  | "JUMP_GATE"
-  | "ASTEROID_FIELD"
-  | "NEBULA"
-  | "DEBRIS_FIELD"
-  | "GRAVITY_WELL";
-
-export type WaypointFaction = {
-  symbol: FactionSymbol;
-};
-
-export type WaypointOrbital = {
-  symbol: string;
-};
+export enum WaypointType {
+  Planet = "PLANET",
+  GasGiant = "GAS_GIANT",
+  Moon = "MOON",
+  OrbitalStation = "ORBITAL_STATION",
+  JumpGate = "JUMP_GATE",
+  AsteroidField = "ASTEROID_FIELD",
+  Nebula = "NEBULA",
+  DebrisField = "DEBRIS_FIELD",
+  GravityWell = "GRAVITY_WELL"
+}
 
 export type WaypointTrait = {
   symbol:
@@ -85,6 +78,14 @@ export type WaypointTrait = {
   description: string;
 };
 
+export type WaypointOrbital = {
+  symbol: string;
+};
+
+export type WaypointFaction = {
+  symbol: FactionSymbol;
+};
+
 export type Waypoint = {
   symbol: string;
   type: WaypointType;
@@ -96,3 +97,5 @@ export type Waypoint = {
   traits: WaypointTrait[];
   chart?: Chart;
 };
+
+export type ScannedWaypoint = Waypoint;

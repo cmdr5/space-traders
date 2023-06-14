@@ -1,23 +1,24 @@
-export type FactionSymbol =
-  | "COSMIC"
-  | "VOID"
-  | "GALACTIC"
-  | "QUANTUM"
-  | "DOMINION"
-  | "ASTRO"
-  | "CORSAIRS"
-  | "OBSIDIAN"
-  | "AEGIS"
-  | "UNITED"
-  | "SOLITARY"
-  | "COBALT"
-  | "OMEGA"
-  | "ECHO"
-  | "LORDS"
-  | "CULT"
-  | "ANCIENTS"
-  | "SHADOW"
-  | "ETHEREAL";
+export enum FactionSymbol {
+  Cosmic = "COSMIC",
+  Void = "VOID",
+  Galactic = "GALACTIC",
+  Quantum = "QUANTUM",
+  Dominion = "DOMINION",
+  Astro = "ASTRO",
+  Corsairs = "CORSAIRS",
+  Obsidian = "OBSIDIAN",
+  Aegis = "AEGIS",
+  United = "UNITED",
+  Solitary = "SOLITARY",
+  Cobalt = "COBALT",
+  Omega = "OMEGA",
+  Echo = "ECHO",
+  Lords = "LORDS",
+  Cult = "CULT",
+  Ancients = "ANCIENTS",
+  Shadow = "SHADOW",
+  Ethereal = "ETHEREAL"
+}
 
 export type FactionTrait = {
   symbol:
