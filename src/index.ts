@@ -24,6 +24,20 @@ import type { ScannedSystem, System } from "./types/system";
 import type { TradeSymbol } from "./types/trade";
 import type { ScannedWaypoint, Waypoint } from "./types/waypoint";
 
+type ErrorResponse = {
+  error: {
+    message: string;
+    code: number;
+  };
+};
+
+class SpaceTradersError extends Error {
+  constructor(public override message: string, public code: number) {
+    super(message);
+    this.name = "SpaceTradersError";
+  }
+}
+
 export class SpaceTraders {
   private accessToken?: string;
 
@@ -42,18 +56,22 @@ export class SpaceTraders {
       ...(stringifiedBody && { body: stringifiedBody }),
       headers: {
         Accept: "application/json",
-        ...(this.accessToken && {
-          Authorization: `Bearer ${this.accessToken}`
-        }),
-        ...(stringifiedBody && {
-          "Content-Type": "application/json",
-          "Content-Length": stringifiedBody.length.toString()
-        })
+        ...(this.accessToken
+          ? {
+              Authorization: `Bearer ${this.accessToken}`
+            }
+          : {}),
+        ...(stringifiedBody
+          ? {
+              "Content-Type": "application/json",
+              "Content-Length": stringifiedBody.length.toString()
+            }
+          : {})
       }
     });
     const result = (await response.json()) as unknown;
     if (!response.ok) {
-      const { error } = result as { error: { message: string; code: number } };
+      const { error } = result as ErrorResponse;
       throw new SpaceTradersError(error.message, error.code);
     }
     return result as T;
