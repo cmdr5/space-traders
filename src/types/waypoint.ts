@@ -1,5 +1,5 @@
-import type { Chart } from "./chart";
-import type { FactionSymbol } from "./faction";
+import type { Chart } from "./chart.js";
+import type { FactionSymbol } from "./faction.js";
 
 export enum WaypointType {
   Planet = "PLANET",

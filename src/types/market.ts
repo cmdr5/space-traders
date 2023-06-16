@@ -1,4 +1,4 @@
-import type { TradeGood } from "./trade";
+import type { TradeGood } from "./trade.js";
 
 export type MarketTransaction = {
   waypointSymbol: string;

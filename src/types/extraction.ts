@@ -1,4 +1,4 @@
-import type { TradeSymbol } from "./trade";
+import type { TradeSymbol } from "./trade.js";
 
 export type ExtractionYield = {
   symbol: TradeSymbol;

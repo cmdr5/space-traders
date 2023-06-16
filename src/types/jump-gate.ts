@@ -1,4 +1,4 @@
-import type { ConnectedSystem } from "./system";
+import type { ConnectedSystem } from "./system.js";
 
 export type JumpGate = {
   jumpRange: number;

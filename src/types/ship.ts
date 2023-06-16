@@ -1,5 +1,5 @@
-import type { TradeSymbol } from "./trade";
-import type { WaypointType } from "./waypoint";
+import type { TradeSymbol } from "./trade.js";
+import type { WaypointType } from "./waypoint.js";
 
 export enum ShipType {
   Probe = "SHIP_PROBE",

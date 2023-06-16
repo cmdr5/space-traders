@@ -5,7 +5,7 @@ import type {
   ShipMount,
   ShipReactor,
   ShipType
-} from "./ship";
+} from "./ship.js";
 
 export type ShipyardShip = {
   type?: ShipType;
