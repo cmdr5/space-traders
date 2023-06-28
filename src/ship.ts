@@ -10,11 +10,11 @@ import type {
   Ship,
   ShipCargo,
   ShipFuel,
+  ShipModificationTransaction,
   ShipMount,
   ShipNav,
   ShipNavFlightMode
 } from "./types/ship";
-import type { ShipyardTransaction } from "./types/shipyard";
 import type { Survey } from "./types/survey";
 import type { ScannedSystem } from "./types/system";
 import type { TradeSymbol } from "./types/trade";
@@ -45,7 +45,9 @@ export enum ShipActionType {
 }
 
 export type ShipActionBody<T extends ShipActionType> =
-  T extends ShipActionType.ExtractResources
+  T extends ShipActionType.Refuel
+    ? { units?: number }
+    : T extends ShipActionType.ExtractResources
     ? { survey: Survey }
     : T extends
         | ShipActionType.JettisonCargo
@@ -118,13 +120,13 @@ export class GameShip {
 
   private async installOrRemoveMount(
     type: "install" | "remove",
-    body: { symbol: string }
+    body: ShipActionBody<ShipActionType.InstallMount>
   ) {
     const { agent, mounts, cargo, transaction } = await makeRequest<{
       agent: Agent;
       mounts: ShipMount[];
       cargo: ShipCargo;
-      transaction: ShipyardTransaction;
+      transaction: ShipModificationTransaction;
     }>({
       path: `my/ships/${this.symbol}/mounts/${type}`,
       method: "POST",
@@ -141,7 +143,9 @@ export class GameShip {
     });
   }
 
-  private async extractResources(body: { survey: Survey }) {
+  private async extractResources(
+    body: ShipActionBody<ShipActionType.ExtractResources>
+  ) {
     const { cooldown, extraction, cargo } = await makeRequest<{
       cooldown: Cooldown;
       extraction: Extraction;
@@ -155,7 +159,9 @@ export class GameShip {
     this.cargo = cargo;
   }
 
-  private async jettisonCargo(body: { symbol: TradeSymbol; units: number }) {
+  private async jettisonCargo(
+    body: ShipActionBody<ShipActionType.JettisonCargo>
+  ) {
     Object.assign(
       this,
       await makeRequest<{ cargo: ShipCargo }>({
@@ -168,7 +174,7 @@ export class GameShip {
 
   private async purchaseOrSellCargo(
     type: "purchase" | "sell",
-    body: { symbol: TradeSymbol; units: number }
+    body: ShipActionBody<ShipActionType.PurchaseCargo>
   ) {
     const { agent, cargo, transaction } = await makeRequest<{
       agent: Agent;
@@ -183,7 +189,7 @@ export class GameShip {
     this.cargo = cargo;
   }
 
-  private async jump(body: { systemSymbol: string }) {
+  private async jump(body: ShipActionBody<ShipActionType.Jump>) {
     const { cooldown, nav } = await makeRequest<{
       cooldown: Cooldown;
       nav: ShipNav;
@@ -203,7 +209,7 @@ export class GameShip {
     });
   }
 
-  private async patchNav(body: { flightMode: ShipNavFlightMode }) {
+  private async patchNav(body: ShipActionBody<ShipActionType.PatchNav>) {
     this.nav = await makeRequest<ShipNav>({
       path: `my/ships/${this.symbol}/nav`,
       method: "PATCH",
@@ -211,23 +217,12 @@ export class GameShip {
     });
   }
 
-  private async refine(body: {
-    produce:
-      | TradeSymbol.Iron
-      | TradeSymbol.Copper
-      | TradeSymbol.Aluminum
-      | TradeSymbol.Silver
-      | TradeSymbol.Gold
-      | TradeSymbol.Platinum
-      | TradeSymbol.Uranite
-      | TradeSymbol.Meritium
-      | TradeSymbol.Fuel;
-  }) {
+  private async refine(body: ShipActionBody<ShipActionType.Refine>) {
     const { cargo, cooldown, produced, consumed } = await makeRequest<{
       cargo: ShipCargo;
       cooldown: Cooldown;
-      produced: { tradeSymbol?: string; units?: number }[];
-      consumed: { tradeSymbol?: string; units?: number }[];
+      produced: { tradeSymbol: string; units: number }[];
+      consumed: { tradeSymbol: string; units: number }[];
     }>({
       path: `my/ships/${this.symbol}/refine`,
       method: "POST",
@@ -237,14 +232,15 @@ export class GameShip {
     this.setCooldown(cooldown);
   }
 
-  private async refuel() {
+  private async refuel(body: ShipActionBody<ShipActionType.Refuel>) {
     const { agent, fuel, transaction } = await makeRequest<{
       agent: Agent;
       fuel: ShipFuel;
       transaction: MarketTransaction;
     }>({
       path: `my/ships/${this.symbol}/refuel`,
-      method: "POST"
+      method: "POST",
+      body
     });
     this.game.agent = agent;
     this.fuel = fuel;
@@ -279,11 +275,9 @@ export class GameShip {
     this.setCooldown(cooldown);
   }
 
-  private async transferCargo(body: {
-    tradeSymbol: TradeSymbol;
-    units: number;
-    shipSymbol: string;
-  }) {
+  private async transferCargo(
+    body: ShipActionBody<ShipActionType.TransferCargo>
+  ) {
     Object.assign(
       this,
       await makeRequest<{ cargo: ShipCargo }>({

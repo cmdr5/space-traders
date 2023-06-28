@@ -253,3 +253,11 @@ export type ScannedShip = {
   engine: { symbol: string };
   mounts?: { symbol: string }[];
 };
+
+export type ShipModificationTransaction = {
+  waypointSymbol: string;
+  shipSymbol: string;
+  tradeSymbol: string;
+  totalPrice: number;
+  timestamp: string;
+};
