@@ -5,12 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
-  ky:
-    specifier: ^0.33.3
-    version: 0.33.3
-  type-fest:
-    specifier: ^3.11.1
-    version: 3.11.1
+  '@cmdr5/eta':
+    specifier: ^0.1.0
+    version: 0.1.0
 
 devDependencies:
   '@commitlint/cli':
@@ -34,6 +31,9 @@ devDependencies:
   rimraf:
     specifier: ^5.0.1
     version: 5.0.1
+  type-fest:
+    specifier: ^3.12.0
+    version: 3.12.0
   typescript:
     specifier: ^5.1.3
     version: 5.1.3
@@ -60,6 +60,11 @@ packages:
       chalk: 2.4.2
       js-tokens: 4.0.0
     dev: true
+
+  /@cmdr5/eta@0.1.0:
+    resolution: {integrity: sha512-IakmetHuuvQ6/ZC71yWIpiBLAWYYF5n9X8oTDHXE77++LPfoeyDoasLdVSh52Bci3jm1fuNrhim+CtbbWb3mpg==}
+    engines: {pnpm: '>=8.6.0'}
+    dev: false
 
   /@commitlint/cli@17.6.5:
     resolution: {integrity: sha512-3PQrWr/uo6lzF5k7n5QuosCYnzaxP9qGBp3jhWP0Vmsa7XA6wrl9ccPqfQyXpSbQE3zBROVO3TDqgPKe4tfmLQ==}
@@ -834,11 +839,6 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /ky@0.33.3:
-    resolution: {integrity: sha512-CasD9OCEQSFIam2U8efFK81Yeg8vNMTBUqtMOHlrcWQHqUX3HeCl9Dr31u4toV7emlH8Mymk5+9p0lL6mKb/Xw==}
-    engines: {node: '>=14.16'}
-    dev: false
-
   /lefthook-darwin-arm64@1.4.1:
     resolution: {integrity: sha512-j3Egr/oNu8JKZDtwtKZrU+34c4DDNy8sKuagZrfFpmwhZEqSFUMxjxUC/J8QnX0Bc60Wo+UAUfv/Oe6g+s4QSA==}
     cpu: [arm64]
@@ -1499,10 +1499,10 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /type-fest@3.11.1:
-    resolution: {integrity: sha512-aCuRNRERRVh33lgQaJRlUxZqzfhzwTrsE98Mc3o3VXqmiaQdHacgUtJ0esp+7MvZ92qhtzKPeusaX6vIEcoreA==}
+  /type-fest@3.12.0:
+    resolution: {integrity: sha512-qj9wWsnFvVEMUDbESiilKeXeHL7FwwiFcogfhfyjmvT968RXSvnl23f1JOClTHYItsi7o501C/7qVllscUP3oA==}
     engines: {node: '>=14.16'}
-    dev: false
+    dev: true
 
   /typescript@5.1.3:
     resolution: {integrity: sha512-XH627E9vkeqhlZFQuL+UsyAXEnibT0kWR2FWONlr4sTjvxyJYnyefgrkyECLzM5NenmKzRAy2rR/OlYLA1HkZw==}
