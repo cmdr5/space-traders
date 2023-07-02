@@ -1,35 +1,200 @@
-import create, { type EtaResponse } from "@cmdr5/eta";
-import type { JsonValue } from "type-fest";
+import type {
+  HasRequiredKeys,
+  IsEmptyObject,
+  JsonValue,
+  Jsonifiable
+} from "type-fest";
 import type { Agent } from "./types/agent";
 import type { Chart } from "./types/chart";
 import type { Contract } from "./types/contract";
 import type { Cooldown } from "./types/cooldown";
 import type { Extraction } from "./types/extraction";
 import type { MarketTransaction } from "./types/market";
-import type { PaginationMeta, PaginationOptions } from "./types/pagination";
-import type {
-  ScannedShip,
-  Ship,
-  ShipCargo,
-  ShipFuel,
-  ShipModificationTransaction,
-  ShipMount,
-  ShipNav,
-  ShipNavFlightMode
+import type { PaginationMeta } from "./types/pagination";
+import {
+  ShipNavFlightMode,
+  ShipType,
+  type ScannedShip,
+  type Ship,
+  type ShipCargo,
+  type ShipFuel,
+  type ShipModificationTransaction,
+  type ShipMount,
+  type ShipNav
 } from "./types/ship";
+import type { ShipyardTransaction } from "./types/shipyard";
 import type { Survey } from "./types/survey";
 import type { ScannedSystem } from "./types/system";
-import type { TradeSymbol } from "./types/trade";
+import { TradeSymbol } from "./types/trade";
 import type { ScannedWaypoint, Waypoint } from "./types/waypoint";
 
-type ErrorData = {
-  code: number;
-  data?: JsonValue;
-  message: string;
-};
+export enum ContractRequest {
+  Get = "GET|",
+  Accept = "POST|accept",
+  DeliverCargo = "POST|deliver",
+  Fulfill = "POST|fulfill"
+}
 
-type OkResponse<T = unknown> = { data: T };
-type ErrorResponse = { error: ErrorData };
+export type ContractRequestBody<T extends ContractRequest> =
+  T extends ContractRequest.DeliverCargo
+    ? { shipSymbol: string; tradeSymbol: string; units: number }
+    : {};
+
+export type ContractResponse<T extends ContractRequest> = T extends
+  | ContractRequest.Accept
+  | ContractRequest.Fulfill
+  ? { data: { agent: Agent; contract: Contract } }
+  : T extends ContractRequest.DeliverCargo
+  ? { data: { contract: Contract; cargo: ShipCargo } }
+  : // ContractRequest.Get
+    { data: Contract };
+
+export enum ShipsRequest {
+  Get = "GET",
+  Purchase = "POST"
+}
+
+export type ShipsRequestBody<T extends ShipsRequest> =
+  T extends ShipsRequest.Purchase
+    ? { shipType: ShipType; waypointSymbol: string }
+    : {};
+
+export type ShipsResponse<T extends ShipsRequest> =
+  T extends ShipsRequest.Purchase
+    ? { data: { agent: Agent; ship: Ship; transaction: ShipyardTransaction } }
+    : // ShipsRequest.Get
+      { data: Ship[]; meta: PaginationMeta };
+
+export enum ShipRequest {
+  Get = "GET|",
+  GetCooldown = "GET|cooldown",
+  GetCargo = "GET|cargo",
+  GetNav = "GET|nav",
+  GetMounts = "GET|mounts",
+  PatchNav = "PATCH|nav",
+  Refine = "POST|refine",
+  CreateChart = "POST|chart",
+  Survey = "POST|survey",
+  ExtractResources = "POST|extract",
+  JettisonCargo = "POST|jettison",
+  SellCargo = "POST|sell",
+  PurchaseCargo = "POST|purchase",
+  TransferCargo = "POST|transfer",
+  Jump = "POST|jump",
+  Refuel = "POST|refuel",
+  NegotiateContract = "POST|negotiate/contract",
+  Dock = "POST|dock",
+  Orbit = "POST|orbit",
+  Warp = "POST|warp",
+  Navigate = "POST|navigate",
+  ScanShips = "POST|scan/ships",
+  ScanSystems = "POST|scan/systems",
+  ScanWaypoints = "POST|scan/waypoints",
+  InstallMount = "POST|mounts/install",
+  RemoveMount = "POST|mounts/remove"
+}
+
+export type ShipRequestBody<T extends ShipRequest> =
+  T extends ShipRequest.PatchNav
+    ? { flightMode?: ShipNavFlightMode }
+    : T extends ShipRequest.Refine
+    ? {
+        produce:
+          | TradeSymbol.Iron
+          | TradeSymbol.Copper
+          | TradeSymbol.Silver
+          | TradeSymbol.Gold
+          | TradeSymbol.Aluminum
+          | TradeSymbol.Platinum
+          | TradeSymbol.Uranite
+          | TradeSymbol.Meritium
+          | TradeSymbol.Fuel;
+      }
+    : T extends ShipRequest.ExtractResources
+    ? { survey?: Survey }
+    : T extends
+        | ShipRequest.JettisonCargo
+        | ShipRequest.SellCargo
+        | ShipRequest.PurchaseCargo
+    ? { symbol: TradeSymbol; units: number }
+    : T extends ShipRequest.TransferCargo
+    ? { tradeSymbol: TradeSymbol; units: number; shipSymbol: string }
+    : T extends ShipRequest.Jump
+    ? { systemSymbol: string }
+    : T extends ShipRequest.Refuel
+    ? { units?: number }
+    : T extends ShipRequest.Warp | ShipRequest.Navigate
+    ? { waypointSymbol: string }
+    : T extends ShipRequest.InstallMount | ShipRequest.RemoveMount
+    ? { symbol: string }
+    : {};
+
+export type ShipResponse<T extends ShipRequest> =
+  T extends ShipRequest.GetCooldown
+    ? { data: Cooldown } | undefined
+    : T extends ShipRequest.GetCargo
+    ? { data: ShipCargo }
+    : T extends ShipRequest.GetNav
+    ? { data: ShipNav }
+    : T extends ShipRequest.GetMounts
+    ? { data: ShipMount[] }
+    : T extends ShipRequest.PatchNav
+    ? { data: ShipNav }
+    : T extends ShipRequest.Refine
+    ? {
+        data: {
+          cargo: ShipCargo;
+          cooldown: Cooldown;
+          produced: { tradeSymbol: string; units: number }[];
+          consumed: { tradeSymbol: string; units: number }[];
+        };
+      }
+    : T extends ShipRequest.CreateChart
+    ? { data: { chart: Chart; waypoint: Waypoint } }
+    : T extends ShipRequest.Survey
+    ? { data: { cooldown: Cooldown; surveys: Survey[] } }
+    : T extends ShipRequest.ExtractResources
+    ? { data: { cooldown: Cooldown; extraction: Extraction; cargo: ShipCargo } }
+    : T extends ShipRequest.JettisonCargo | ShipRequest.TransferCargo
+    ? { data: { cargo: ShipCargo } }
+    : T extends ShipRequest.SellCargo | ShipRequest.PurchaseCargo
+    ? {
+        data: {
+          agent: Agent;
+          cargo: ShipCargo;
+          transaction: MarketTransaction;
+        };
+      }
+    : T extends ShipRequest.Jump
+    ? { data: { cooldown: Cooldown; nav: ShipNav } }
+    : T extends ShipRequest.Refuel
+    ? { data: { agent: Agent; fuel: ShipFuel; transaction: MarketTransaction } }
+    : T extends ShipRequest.NegotiateContract
+    ? { data: { contract: Contract } }
+    : T extends ShipRequest.Dock | ShipRequest.Orbit
+    ? { data: { nav: ShipNav } }
+    : T extends ShipRequest.Warp | ShipRequest.Navigate
+    ? { data: { fuel: ShipFuel; nav: ShipNav } }
+    : T extends ShipRequest.ScanShips
+    ? { data: { cooldown: Cooldown; ships: ScannedShip[] } }
+    : T extends ShipRequest.ScanSystems
+    ? { data: { cooldown: Cooldown; systems: ScannedSystem[] } }
+    : T extends ShipRequest.ScanWaypoints
+    ? { data: { cooldown: Cooldown; waypoints: ScannedWaypoint[] } }
+    : T extends ShipRequest.InstallMount | ShipRequest.RemoveMount
+    ? {
+        data: {
+          agent: Agent;
+          mounts: ShipMount[];
+          cargo: ShipCargo;
+          transaction: ShipModificationTransaction;
+        };
+      }
+    : // ShipRequest.Get
+      { data: Ship };
+
+type ErrorData = { code: number; data?: JsonValue; message: string };
+export type ErrorResponse = { error: ErrorData };
 
 export interface SpaceTradersError extends ErrorData {}
 export class SpaceTradersError extends Error {
@@ -37,389 +202,92 @@ export class SpaceTradersError extends Error {
     super(message);
     this.name = "SpaceTradersError";
     this.code = code;
-    if (data) this.data = data;
+    if (data !== undefined) this.data = data;
   }
 }
 
-export const start = async (accessToken: string) => {
-  const api = create({
-    baseURL: "https://api.spacetraders.io/v2",
-    headers: { Authorization: `Bearer ${accessToken}` },
-    responseType: "json",
-    hooks: {
-      afterResponse: [
-        (res: EtaResponse<OkResponse | ErrorResponse | undefined>) => {
-          if (res.data !== undefined && "error" in res.data)
-            throw new SpaceTradersError(res.data.error);
-        }
-      ]
-    }
-  });
+type BodyArg<T extends object> = IsEmptyObject<T> extends true
+  ? [undefined?]
+  : HasRequiredKeys<T> extends true
+  ? [T]
+  : [T] | [undefined?];
 
-  const wrapContract = (c: Contract) => {
-    const acceptOrFulfill = async (
-      type: "accept" | "fulfill",
-      contract: Contract
-    ) => {
-      const { agent: _agent, contract: _contract } = (
-        await api.post<{ data: { agent: Agent; contract: Contract } }>(
-          `my/contracts/${contract.id}/${type}`
-        )
-      ).data.data;
-      Object.assign(agent, _agent);
-      Object.assign(contract, _contract);
-    };
+export class SpaceTradersAPI {
+  private accessToken?: string | undefined;
+  private async request<T>({
+    path,
+    method,
+    json
+  }: {
+    path: string;
+    method?: string;
+    json?: Jsonifiable;
+  }) {
+    const body = json ? JSON.stringify(json) : undefined;
+    const response = await fetch(`https://api.spacetraders.io/v2/${path}`, {
+      ...(method ? { method } : {}),
+      ...(body ? { body } : {}),
+      headers: new Headers({
+        accept: "application/json",
+        ...(body
+          ? {
+              "content-type": "application/json",
+              "content-length": body.length.toString()
+            }
+          : {}),
+        ...(this.accessToken
+          ? { authorization: `Bearer ${this.accessToken}` }
+          : {})
+      })
+    });
+    let result!: T | ErrorResponse;
+    try {
+      result = await response.json();
+    } catch (_) {}
+    if (result != null && typeof result === "object" && "error" in result)
+      throw new SpaceTradersError(result.error);
+    if (!response.ok) throw new Error("");
+    return result;
+  }
 
-    return {
-      ...c,
-      accept() {
-        return acceptOrFulfill("accept", this);
-      },
-      async deliverCargo(json: {
-        shipSymbol: string;
-        tradeSymbol: string;
-        units: number;
-      }) {
-        const { contract, cargo } = (
-          await api.post<{ data: { contract: Contract; cargo: ShipCargo } }>(
-            `my/contracts/${this.id}/deliver`,
-            { json }
-          )
-        ).data.data;
-        Object.assign(this, contract);
-        ships.get(json.shipSymbol)!.cargo = cargo;
-      },
-      async fulfill() {
-        return acceptOrFulfill("fulfill", this);
-      }
-    };
-  };
+  setAccessToken(token: string) {
+    this.accessToken = token;
+  }
 
-  const getAll = async <T>(path: string, opts = {} as PaginationOptions) => {
-    if (opts.limit === undefined) opts.limit = 20;
-    if (opts.page === undefined) opts.page = 1;
+  async ships<T extends ShipsRequest>(
+    type: T,
+    ...json: BodyArg<ShipsRequestBody<T>>
+  ) {
+    return this.request<ShipsResponse<T>>({
+      path: "my/ships",
+      method: type,
+      ...(json[0] ? { json: json[0] } : {})
+    });
+  }
 
-    let total = 1,
-      fetched = 0;
+  async ship<T extends ShipRequest>(
+    shipSymbol: string,
+    type: T,
+    ...json: BodyArg<ShipRequestBody<T>>
+  ) {
+    const [method, segment] = type.split("|") as [string, string];
+    return this.request<ShipResponse<T>>({
+      path: `my/ships/${shipSymbol}/${segment}`,
+      method,
+      ...(json[0] ? { json: json[0] } : {})
+    });
+  }
 
-    const items: T[] = [];
-
-    while (fetched !== total) {
-      const { data, meta } = (
-        await api.get<{ data: T[]; meta: PaginationMeta }>(
-          `${path}?limit=${opts.limit}&page=${opts.page}`
-        )
-      ).data;
-      total = meta.total;
-      fetched += data.length;
-      items.push(...data);
-      opts.page++;
-    }
-
-    return items;
-  };
-
-  const getCooldownPromise = (cooldown?: Cooldown) =>
-    new Promise<void>((resolve) =>
-      setTimeout(resolve, (cooldown?.remainingSeconds ?? 0) * 1000)
-    );
-
-  const agent = (await api.get<Agent>("my/agent")).data;
-
-  const contracts = new Map(
-    (await getAll<Contract>("my/contracts")).map((contract) => [
-      contract.id,
-      wrapContract(contract)
-    ])
-  );
-
-  const ships = new Map(
-    (
-      await Promise.all(
-        (
-          await getAll<Ship>("my/ships")
-        ).map(
-          async (ship) =>
-            [
-              ship,
-              (
-                await api.get<{ data: Cooldown } | undefined>(
-                  `my/ships/${ship.symbol}/cooldown`
-                )
-              ).data?.data
-            ] as const
-        )
-      )
-    ).map(([ship, cooldown]) => {
-      const dockOrOrbit = async (type: "dock" | "orbit", obj: Ship) => {
-        Object.assign(
-          obj,
-          (
-            await api.post<{ data: { nav: ShipNav } }>(
-              `my/ships/${obj.symbol}/${type}`
-            )
-          ).data.data
-        );
-      };
-
-      const warpOrNavigate = async (
-        type: "warp" | "navigate",
-        obj: Ship,
-        waypointSymbol: string
-      ) => {
-        Object.assign(
-          obj,
-          (
-            await api.post<{ data: { fuel: ShipFuel; nav: ShipNav } }>(
-              `my/ships/${obj.symbol}/${type}`,
-              { json: { waypointSymbol } }
-            )
-          ).data.data
-        );
-      };
-
-      const installOrRemoveMount = async (
-        type: "install" | "remove",
-        obj: Ship,
-        symbol: string
-      ) => {
-        const {
-          agent: _agent,
-          mounts,
-          cargo,
-          transaction
-        } = (
-          await api.post<{
-            data: {
-              agent: Agent;
-              mounts: ShipMount[];
-              cargo: ShipCargo;
-              transaction: ShipModificationTransaction;
-            };
-          }>(`my/ships/${obj.symbol}/mounts/${type}`, {
-            json: { symbol }
-          })
-        ).data.data;
-        Object.assign(agent, _agent);
-        Object.assign(obj, { mounts, cargo });
-        return transaction;
-      };
-
-      const purchaseOrSellCargo = async (
-        type: "purchase" | "sell",
-        obj: Ship,
-        json: { symbol: TradeSymbol; units: number }
-      ) => {
-        const {
-          agent: _agent,
-          cargo,
-          transaction
-        } = (
-          await api.post<{
-            data: {
-              agent: Agent;
-              cargo: ShipCargo;
-              transaction: MarketTransaction;
-            };
-          }>(`my/ships/${obj.symbol}/${type}`, { json })
-        ).data.data;
-        Object.assign(agent, _agent);
-        obj.cargo = cargo;
-        return transaction;
-      };
-
-      const scan = async <T extends "ships" | "systems" | "waypoints">(
-        type: T,
-        obj: Ship & { cooldown: Promise<void> }
-      ) => {
-        const { data } = (
-          await api.post<{
-            data: { cooldown: Cooldown } & {
-              ships: ScannedShip[];
-              systems: ScannedSystem[];
-              waypoints: ScannedWaypoint[];
-            };
-          }>(`my/ships/${obj.symbol}/scan/${type}`)
-        ).data;
-        obj.cooldown = getCooldownPromise(data.cooldown);
-        return data[type];
-      };
-
-      return [
-        ship.symbol,
-        {
-          ...ship,
-          cooldown: getCooldownPromise(cooldown),
-          orbit() {
-            return dockOrOrbit("orbit", this);
-          },
-          async refine(
-            produce:
-              | TradeSymbol.Iron
-              | TradeSymbol.Copper
-              | TradeSymbol.Silver
-              | TradeSymbol.Gold
-              | TradeSymbol.Aluminum
-              | TradeSymbol.Platinum
-              | TradeSymbol.Uranite
-              | TradeSymbol.Meritium
-              | TradeSymbol.Fuel
-          ) {
-            const { cargo, cooldown, produced, consumed } = (
-              await api.post<{
-                cargo: ShipCargo;
-                cooldown: Cooldown;
-                produced: { tradeSymbol: string; units: number }[];
-                consumed: { tradeSymbol: string; units: number }[];
-              }>(`my/ships/${this.symbol}/refine`, { json: { produce } })
-            ).data;
-            this.cargo = cargo;
-            this.cooldown = getCooldownPromise(cooldown);
-            return { produced, consumed };
-          },
-          async chart() {
-            return (
-              await api.post<{ data: { chart: Chart; waypoint: Waypoint } }>(
-                `my/ships/${this.symbol}/chart`
-              )
-            ).data.data;
-          },
-          async dock() {
-            return dockOrOrbit("dock", this);
-          },
-          async survey() {
-            const { cooldown, surveys } = (
-              await api.post<{
-                data: { cooldown: Cooldown; surveys: Survey[] };
-              }>(`my/ships/${this.symbol}/survey`)
-            ).data.data;
-            this.cooldown = getCooldownPromise(cooldown);
-            return surveys;
-          },
-          async extractResources(survey?: Survey) {
-            const { cooldown, extraction, cargo } = (
-              await api.post<{
-                data: {
-                  cooldown: Cooldown;
-                  extraction: Extraction;
-                  cargo: ShipCargo;
-                };
-              }>(
-                `my/ships/${this.symbol}/extract`,
-                survey ? { json: { survey } } : {}
-              )
-            ).data.data;
-            this.cooldown = getCooldownPromise(cooldown);
-            this.cargo = cargo;
-            return extraction.yield;
-          },
-          async jettisonCargo(symbol: TradeSymbol, units: number) {
-            Object.assign(
-              this,
-              (
-                await api.post<{ data: { cargo: ShipCargo } }>(
-                  `my/ships/${this.symbol}/jettison`,
-                  { json: { symbol, units } }
-                )
-              ).data.data
-            );
-          },
-          async jump(systemSymbol: string) {
-            const { cooldown, nav } = (
-              await api.post<{ data: { cooldown: Cooldown; nav: ShipNav } }>(
-                `my/ships/${this.symbol}/jump`,
-                { json: { systemSymbol } }
-              )
-            ).data.data;
-            this.cooldown = getCooldownPromise(cooldown);
-            this.nav = nav;
-          },
-          navigate(waypointSymbol: string) {
-            return warpOrNavigate("navigate", this, waypointSymbol);
-          },
-          async patchNav(nav: { flightMode: ShipNavFlightMode }) {
-            this.nav = (
-              await api.patch<{ data: ShipNav }>(
-                `my/ships/${this.symbol}/nav`,
-                { json: { ...nav } }
-              )
-            ).data.data;
-          },
-          warp(waypointSymbol: string) {
-            return warpOrNavigate("warp", this, waypointSymbol);
-          },
-          sellCargo(symbol: TradeSymbol, units: number) {
-            return purchaseOrSellCargo("sell", this, { symbol, units });
-          },
-          scanSystems() {
-            return scan("systems", this);
-          },
-          scanWaypoints() {
-            return scan("waypoints", this);
-          },
-          scanShips() {
-            return scan("ships", this);
-          },
-          async refuel(units?: number) {
-            const {
-              agent: _agent,
-              fuel,
-              transaction
-            } = (
-              await api.post<{
-                data: {
-                  agent: Agent;
-                  fuel: ShipFuel;
-                  transaction: MarketTransaction;
-                };
-              }>(
-                `my/ships/${this.symbol}/refuel`,
-                units !== undefined ? { json: { units } } : {}
-              )
-            ).data.data;
-            Object.assign(agent, _agent);
-            this.fuel = fuel;
-            return transaction;
-          },
-          purchaseCargo(symbol: TradeSymbol, units: number) {
-            return purchaseOrSellCargo("purchase", this, { symbol, units });
-          },
-          async transferCargo(
-            tradeSymbol: TradeSymbol,
-            units: number,
-            shipSymbol: string
-          ) {
-            Object.assign(
-              this,
-              (
-                await api.post<{ data: { cargo: ShipCargo } }>(
-                  `my/ships/${this.symbol}/transfer`,
-                  { json: { tradeSymbol, units, shipSymbol } }
-                )
-              ).data.data
-            );
-          },
-          async negotiateContract() {
-            const contract = wrapContract(
-              (
-                await api.post<{ data: { contract: Contract } }>(
-                  `my/ships/${this.symbol}/negotiate/contract`
-                )
-              ).data.data.contract
-            );
-            contracts.set(contract.id, contract);
-            return contract;
-          },
-          installMount(symbol: string) {
-            return installOrRemoveMount("install", this, symbol);
-          },
-          removeMount(symbol: string) {
-            return installOrRemoveMount("remove", this, symbol);
-          }
-        }
-      ];
-    })
-  );
-
-  return { agent, contracts, ships };
-};
+  async contract<T extends ContractRequest>(
+    contractId: string,
+    type: T,
+    ...json: BodyArg<ContractRequestBody<T>>
+  ) {
+    const [method, segment] = type.split("|") as [string, string];
+    return this.request<ContractResponse<T>>({
+      path: `my/contracts/${contractId}/${segment}`,
+      method,
+      ...(json[0] ? { json: json[0] } : {})
+    });
+  }
+}

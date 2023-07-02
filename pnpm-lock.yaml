@@ -4,11 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-dependencies:
-  '@cmdr5/eta':
-    specifier: ^0.1.0
-    version: 0.1.0
-
 devDependencies:
   '@commitlint/cli':
     specifier: ^17.6.5
@@ -60,11 +55,6 @@ packages:
       chalk: 2.4.2
       js-tokens: 4.0.0
     dev: true
-
-  /@cmdr5/eta@0.1.0:
-    resolution: {integrity: sha512-IakmetHuuvQ6/ZC71yWIpiBLAWYYF5n9X8oTDHXE77++LPfoeyDoasLdVSh52Bci3jm1fuNrhim+CtbbWb3mpg==}
-    engines: {pnpm: '>=8.6.0'}
-    dev: false
 
   /@commitlint/cli@17.6.5:
     resolution: {integrity: sha512-3PQrWr/uo6lzF5k7n5QuosCYnzaxP9qGBp3jhWP0Vmsa7XA6wrl9ccPqfQyXpSbQE3zBROVO3TDqgPKe4tfmLQ==}
